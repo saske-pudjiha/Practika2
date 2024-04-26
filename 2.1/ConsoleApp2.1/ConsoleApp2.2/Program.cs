@@ -1,75 +1,79 @@
 ﻿using System;
+using System.Collections.Generic;
 
 class Program
 {
-    public static int[][] CombinationSum(int[] candidates, int target) 
+    static void PrintResult(int[][] combinations)
+    {
+        foreach (var combination in combinations)
+        {
+            Console.Write("[");
+            for (int i = 0; i < combination.Length; i++)
+            {
+                Console.Write(combination[i]);
+
+                if (i < combination.Length - 1)
+                {
+                    Console.Write(", ");
+                }
+            }
+            Console.WriteLine("]");
+        }
+    }
+    static int[][] result(int[] candidates, int target)
     {
         Array.Sort(candidates);
-        var result = new int[0][];
-
-        FindCombinations(candidates, target, 0, new int[0], ref result);
-
-        return result;
+        
+        var result = new List<int[]>();
+        
+        Find(candidates, target, new int[candidates.Length], 0, 0, result);
+        
+        return result.ToArray();
     }
-    
-    public static void FindCombinations(int[] candidates, int target, int start, int[] path, ref int[][] result)
+
+    static void Find(int[] candidates, int target, int[] current, int index, int pos, List<int[]> result)
     {
-        if(target == 0)
+        if (target == 0)
         {
-            Array.Resize(ref result, result.Length + 1);
-            result[result.Length - 1] = path;
+            int[] combination = new int[pos];
+            
+            Array.Copy(current, combination, pos);
+            
+            result.Add(combination);
             return;
         }
-        
-        for(int i = start; i < candidates.Length; i++)
+
+        for (int i = index; i < candidates.Length; i++)
         {
-            if(i > start && candidates[i] == candidates[i-1]) 
+            if (candidates[i] > target)
+            {
+                break;
+            }
+
+            if (i > index && candidates[i] == candidates[i - 1])
             {
                 continue;
             }
             
-            if(target - candidates[i] >= 0)
-            {
-                int[] newPath = new int[path.Length + 1];
-                Array.Copy(path, newPath, path.Length);
-                newPath[path.Length] = candidates[i];
-                FindCombinations(candidates, target - candidates[i], i + 1, newPath, ref result);
-            }
+            current[pos] = candidates[i];
+            
+            Find(candidates, target - candidates[i], current, i + 1, pos + 1, result);
         }
     }
-
     static void Main()
     {
-        int[] candidates1 = {2, 5, 2, 1, 2};
+        int[] candidates1 = { 2, 5, 2, 1, 2 };
         int target1 = 5;
-        var result1 = CombinationSum(candidates1, target1);
-        
-        Console.WriteLine("[");
-        foreach(var arr in result1)
-        {
-            Console.Write("[");
-            foreach(var num in arr)
-            {
-                Console.Write(num + ", ");
-            }
-            Console.WriteLine("]");
-        }
-        Console.WriteLine("]");
 
-        int[] candidates2 = {10, 1, 2, 7, 6, 1, 5};
+        Console.WriteLine("Результат для первого набора данных: ");
+        var result1 = result(candidates1, target1);
+        PrintResult(result1);
+
+        int[] candidates2 = { 10, 1, 2, 7, 6, 1, 5 };
         int target2 = 8;
-        var result2 = CombinationSum(candidates2, target2);
-        
-        Console.WriteLine("[");
-        foreach(var arr in result2)
-        {
-            Console.Write("[");
-            foreach(var num in arr)
-            {
-                Console.Write(num + ", ");
-            }
-            Console.WriteLine("]");
-        }
-        Console.WriteLine("]");
+
+        Console.WriteLine("Результат для второго набора данных: ");
+        var result2 = result(candidates2, target2);
+        PrintResult(result2);
     }
 }
